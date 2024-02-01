@@ -24,8 +24,10 @@ import {
   TextareaAutosize,
 } from "@mui/material";
 import { QueryBuilderMaterial } from "@react-querybuilder/material";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Field, QueryBuilder, RuleGroupType } from "react-querybuilder";
+import "react-querybuilder/dist/query-builder.css";
 
 const muiComponents = {
   DragIndicator,
@@ -49,22 +51,27 @@ const muiComponents = {
   TextareaAutosize,
 };
 
-export function QB({
-  fields,
-  initialQuery,
-}: {
-  fields: Field[];
-  initialQuery: RuleGroupType;
-}) {
-  const [query, setQuery] = useState(initialQuery);
+// See https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#skipping-ssr
+export const QB = dynamic(
+  () =>
+    Promise.resolve(function ({
+      fields,
+      initialQuery,
+    }: {
+      fields: Field[];
+      initialQuery: RuleGroupType;
+    }) {
+      const [query, setQuery] = useState(initialQuery);
 
-  return (
-    <QueryBuilderMaterial muiComponents={muiComponents}>
-      <QueryBuilder
-        fields={fields}
-        defaultQuery={query}
-        onQueryChange={setQuery}
-      />
-    </QueryBuilderMaterial>
-  );
-}
+      return (
+        <QueryBuilderMaterial muiComponents={muiComponents}>
+          <QueryBuilder
+            fields={fields}
+            defaultQuery={query}
+            onQueryChange={setQuery}
+          />
+        </QueryBuilderMaterial>
+      );
+    }),
+  { ssr: false }
+);
